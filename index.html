@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Message Memory v4 — Persistent Memory Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    window.__errors = [];
+    window.addEventListener('error', e => window.__errors.push(e.message + ' in ' + e.filename + ':' + e.lineno));
+  </script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <h1>Message Memory <span class="badge-version">v4 Vault</span></h1>
+          <p>Private, local-first AI memory layer for conversations</p>
+        </div>
+      </div>
+
+      <div class="header-status-group">
+        <div class="status-pill">
+          <span class="status-indicator-dot active" id="modelStatusIndicator"></span>
+          <span id="modelStatusText">Qwen 2.5 0.5B ONNX Ready</span>
+        </div>
+        <div class="status-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-lime)" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          <span id="vaultBadgeCount">Persistent Vault</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION 01: IMPORT CONVERSATION -->
+    <section class="section-wrapper">
+      <div class="section-header">
+        <div class="section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          01 — Import Conversation
+        </div>
+        <h2 class="section-title">Bring your chat exports.</h2>
+        <p class="section-subtitle">Drop your WhatsApp .txt export file. All messages remain 100% private in browser memory.</p>
+      </div>
+
+      <div class="import-grid">
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept=".txt" style="display: none;">
+          <div class="drop-zone-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <polyline points="9 15 12 12 15 15"></polyline>
+            </svg>
+          </div>
+          <div class="drop-zone-title">Click to upload or drag & drop WhatsApp .txt file</div>
+          <div class="drop-zone-desc">Supports iOS and Android WhatsApp conversation exports</div>
+        </div>
+
+        <div class="sample-chat-box">
+          <button class="btn btn-secondary" id="btnLoadSample">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="10 8 16 12 10 16 10 8"></polygon>
+            </svg>
+            Load Sample Chat
+          </button>
+          <div class="sample-chat-desc">Instant sample with Coorg trip plans, Zaitoon biryani & resources</div>
+        </div>
+      </div>
+
+      <div class="chat-meta-bar" id="chatMetaBar" style="display: none;">
+        <div class="chat-meta-tags">
+          <div class="meta-tag">Messages: <strong id="metaMsgCount">0</strong></div>
+          <div class="meta-tag">People: <strong id="metaParticipants">-</strong></div>
+          <div class="meta-tag">Date: <strong id="metaDateSpan">-</strong></div>
+        </div>
+        <div style="color: var(--accent-lime); font-size: 12px; font-weight: 600;">
+          ✓ Chat Loaded In Memory
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 02: SEARCH & ASK -->
+    <section class="section-wrapper">
+      <div class="section-header">
+        <div class="section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          02 — Search & Ask
+        </div>
+        <h2 class="section-title">Query your conversation naturally.</h2>
+        <p class="section-subtitle">Search raw messages or ask questions with answers verified by original evidence citations.</p>
+      </div>
+
+      <div class="qa-grid">
+        <!-- Message Search -->
+        <div class="search-chat-container">
+          <div class="input-group">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="text-input" id="chatSearchInput" placeholder="Filter messages by keyword or sender...">
+          </div>
+          <div class="results-scroll-container" id="chatSearchResults">
+            <div style="color: var(--text-subtle); text-align: center; padding: 40px 0;">Import a chat file to preview messages.</div>
+          </div>
+        </div>
+
+        <!-- Ask Question with Qwen -->
+        <div class="ask-chat-container">
+          <div class="input-group">
+            <input type="text" class="text-input" id="chatQuestionInput" style="padding-left: 14px;" placeholder="Ask: 'What restaurant was recommended?' or 'When are we leaving?'">
+            <button class="btn btn-primary" id="btnAskQuestion" style="margin-left: 8px;">
+              Ask
+            </button>
+          </div>
+          <div class="ai-answer-card" id="aiAnswerContainer">
+            <div class="ai-answer-header">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+              </svg>
+              <span>QWEN-2.5-0.5B IN-BROWSER ANSWER</span>
+            </div>
+            <div class="ai-answer-body" id="aiAnswerText">Ask a question above to receive a grounded answer with evidence from the chat.</div>
+            <div class="ai-evidence-list" id="aiEvidenceList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 03: MEMORY VAULT -->
+    <section class="section-wrapper">
+      <div class="vault-header-row">
+        <div>
+          <div class="section-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+            03 — Memory Vault
+          </div>
+          <h2 class="section-title">Things worth remembering.</h2>
+          <p class="section-subtitle">Persistent knowledge vault stored locally on your device.</p>
+        </div>
+
+        <div class="vault-actions-bar">
+          <button class="btn btn-secondary" id="btnAddManualMemory">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            + New Memory
+          </button>
+          <button class="btn btn-primary" id="btnExtractMemories">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            </svg>
+            Extract memories from this chat
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Extraction Loader -->
+      <div class="ai-loader-bar" id="aiLoaderBar">
+        <div class="ai-spinner"></div>
+        <div class="ai-loader-text" id="aiLoaderText">Analyzing conversation with Qwen2.5 and generating memory cards...</div>
+      </div>
+
+      <!-- Search & Category Filters -->
+      <div class="vault-controls-wrapper">
+        <div class="vault-search-row">
+          <svg class="vault-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" class="vault-search-input" id="vaultSearchInput" placeholder="Search your memories...">
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="category-filter-bar" id="categoryFilterBar">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Cards Grid -->
+      <div class="memory-grid" id="memoryGrid">
+        <!-- Dynamically rendered -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Edit / Add Memory Modal -->
+  <div class="modal-overlay" id="editModalOverlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalHeading">Edit Memory Card</h3>
+        <button class="modal-close-btn" id="btnCloseEditModal">&times;</button>
+      </div>
+      <form id="editForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input type="text" class="form-control" id="editTitle" required placeholder="e.g. Zaitoon Biryani">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select class="form-control" id="editCategory">
+              <option value="Recommendation">Recommendation</option>
+              <option value="Plan">Plan</option>
+              <option value="Decision">Decision</option>
+              <option value="Important Fact">Important Fact</option>
+              <option value="Resource">Resource</option>
+              <option value="Place">Place</option>
+              <option value="Preference">Preference</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Summary</label>
+            <textarea class="form-control" id="editSummary" required placeholder="Short description of what was remembered..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">People Involved (comma separated)</label>
+            <input type="text" class="form-control" id="editPeople" placeholder="e.g. Arun, Priya">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="text" class="form-control" id="editDate" placeholder="e.g. 12/03/2026">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Source Evidence (Original quote)</label>
+            <textarea class="form-control" id="editEvidence" placeholder="Original excerpt from the chat..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelEdit">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Memory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModalOverlay">
+    <div class="modal-container" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Delete Memory?</h3>
+        <button class="modal-close-btn" id="btnCloseConfirmModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 14px;">
+          Are you sure you want to delete this memory card? This action cannot be undone.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelDelete">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
